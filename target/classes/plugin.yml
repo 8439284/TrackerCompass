@@ -1,0 +1,4 @@
+name: TractorCompass
+version: '1.0-SNAPSHOT'
+main: org.ajls.tractorcompass.TractorCompass
+api-version: '1.21'

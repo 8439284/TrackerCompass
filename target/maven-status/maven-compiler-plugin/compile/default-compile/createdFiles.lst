@@ -1,0 +1,5 @@
+org\ajls\tractorcompass\CompassItemStack.class
+org\ajls\tractorcompass\ScoreboardsAndTeams.class
+org\ajls\tractorcompass\ItemStackModify.class
+org\ajls\tractorcompass\TractorCompass.class
+org\ajls\tractorcompass\MyListener.class
