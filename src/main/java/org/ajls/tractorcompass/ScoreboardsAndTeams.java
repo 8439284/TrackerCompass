@@ -1,5 +1,6 @@
 package org.ajls.tractorcompass;
 
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -67,7 +68,8 @@ public class ScoreboardsAndTeams {
     }
 
     public static String getPlayerTeamName(Player player) {
-        return getPlayerTeam(player).getName();
+//        return getPlayerTeam(player).getName();
+        return ScoreboardU.getPlayerTeamName(player);
     }
 
 

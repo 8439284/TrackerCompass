@@ -1,5 +1,6 @@
 package org.ajls.tractorcompass;
 
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.WritableBookMeta;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,9 +102,10 @@ public class MyListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if(event.getHand().name().equals("HAND")) {
             Action action = event.getAction();
+            Player player = event.getPlayer();
+            UUID playerUUID = player.getUniqueId();
+            ItemStack itemInHand = player.getInventory().getItemInMainHand();
             if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) {
-                Player player = event.getPlayer();
-                ItemStack itemInHand = player.getInventory().getItemInMainHand();
                 if (itemInHand.getItemMeta() != null) {
                     ItemMeta itemMeta = itemInHand.getItemMeta();
                     ItemMeta tractorMeta = tractorCompass.getItemMeta();
@@ -129,15 +132,16 @@ public class MyListener implements Listener {
                                     }
                                 }     // select team to track
                                 teamName = tracked_teams.get(tracker_team.get(player.getUniqueId()));
-                                if (tractorTeamName.equals(teamName) || !not_tracked_teams.contains(teamName)) { // same team or wither not dead
-                                    break;
-                                }
+                                if (!continueLoop(player)) {break;}
+//                                if (tractorTeamName.equals(teamName) || !not_tracked_teams.contains(teamName)) { // same team or wither not dead
+//                                    break;
+//                                }
                             }
 
                             player.sendMessage(ChatColor.GREEN + "tracking " + getTeamColor(teamName) + teamName);
                             for (Player p : world.getPlayers()) {
                                 if (!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR) {
-                                    if (getPlayerTeam(p).getName().equals(teamName)) {
+                                    if (ScoreboardU.getPlayerTeamName(p).equals(teamName)) {
                                         Location loc2 = p.getLocation();
                                         double distance2 = loc2.distance(loc);
                                         if (distance2 < distance) {
@@ -156,6 +160,45 @@ public class MyListener implements Listener {
                             }
                             else {
                                 player.sendMessage(getTeamColor(teamName) + teamName + ChatColor.RED + " not found");
+                            }
+                        }
+                    }
+                }
+            }
+            else if(action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+                if (itemInHand.getItemMeta() != null) {
+                    ItemMeta itemMeta = itemInHand.getItemMeta();
+                    ItemMeta tractorMeta = tractorCompass.getItemMeta();
+                    if (itemMeta.getLore() != null) {
+                        if (itemMeta.getLore().equals(tractorMeta.getLore())) {
+                            event.setCancelled(true);
+                            CompassMeta compassMeta = (CompassMeta) itemMeta;
+                            World world = player.getWorld();
+                            Location loc = player.getLocation();
+                            double distance = Float.MAX_VALUE;
+                            Player target = null;
+                            Location targetLoc = null;
+                            tracker_team.put(playerUUID, -1); // nearest enemy
+                            player.sendMessage(ChatColor.GREEN + "tracking" + ChatColor.WHITE + " nearest enemy");
+                            for (Player p : world.getPlayers()) {
+                                if (!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR) {
+                                    Location loc2 = p.getLocation();
+                                    double distance2 = loc2.distance(loc);
+                                    if (distance2 < distance) {
+                                        distance = distance2;
+                                        target = p;
+                                        targetLoc = loc2;
+                                    }
+                                }
+                            }
+                            if (target != null) {
+                                player.setCompassTarget(targetLoc);
+//                                compassMeta.setLodestone(targetLoc);
+//                                itemInHand.setItemMeta(compassMeta);
+//                                player.getInventory().setItemInMainHand(itemInHand);
+                            }
+                            else {
+                                player.sendMessage(ChatColor.WHITE + "enemy" + ChatColor.RED + " not found");
                             }
                         }
                     }
