@@ -1,5 +1,6 @@
 package org.ajls.tractorcompass;
 
+import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -141,13 +142,15 @@ public class MyListener implements Listener {
                             player.sendMessage(ChatColor.GREEN + "tracking " + getTeamColor(teamName) + teamName);
                             for (Player p : world.getPlayers()) {
                                 if (!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR) {
-                                    if (ScoreboardU.getPlayerTeamName(p).equals(teamName)) {
-                                        Location loc2 = p.getLocation();
-                                        double distance2 = loc2.distance(loc);
-                                        if (distance2 < distance) {
-                                            distance = distance2;
-                                            target = p;
-                                            targetLoc = loc2;
+                                    if (ScoreboardU.getPlayerTeam(p) != null) {
+                                        if (ScoreboardU.getPlayerTeamName(p).equals(teamName)) {
+                                            Location loc2 = p.getLocation();
+                                            double distance2 = loc2.distance(loc);
+                                            if (distance2 < distance) {
+                                                distance = distance2;
+                                                target = p;
+                                                targetLoc = loc2;
+                                            }
                                         }
                                     }
                                 }
@@ -181,7 +184,7 @@ public class MyListener implements Listener {
                             tracker_team.put(playerUUID, -1); // nearest enemy
                             player.sendMessage(ChatColor.GREEN + "tracking" + ChatColor.WHITE + " nearest enemy");
                             for (Player p : world.getPlayers()) {
-                                if (!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR) {
+                                if (PlayerU.isPlayer2PlayableEnemy(player, p)) {  //!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR
                                     Location loc2 = p.getLocation();
                                     double distance2 = loc2.distance(loc);
                                     if (distance2 < distance) {

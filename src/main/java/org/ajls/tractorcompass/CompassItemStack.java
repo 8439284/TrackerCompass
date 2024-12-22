@@ -2,6 +2,7 @@ package org.ajls.tractorcompass;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -48,7 +49,7 @@ public class CompassItemStack {
         return false;
     }
 
-    public static void trackTeam(Player player) {
+    public static boolean trackTeam(Player player) {
         UUID playerUUID  = player.getUniqueId();
         if (!tracker_team.containsKey(playerUUID)) {
             tracker_team.put(playerUUID, 0);
@@ -113,7 +114,7 @@ public class CompassItemStack {
         Player target = null;
         Location targetLoc = null;
         for (Player p : world.getPlayers()) {
-            if (!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR) {
+            if (PlayerU.isPlayer2PlayableEnemy(player, p)) {  //!p.equals(player) && p.getGameMode() != GameMode.SPECTATOR
                 boolean track = false;
                 if (teamName == null) {
                     track = true;
@@ -158,11 +159,13 @@ public class CompassItemStack {
             else {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(chatColor + "" + Math.round(distance) + "m " + ChatColor.WHITE + "下方"));
             }
+            return true;
         }
         else {
             player.setCompassTarget(new Location(world, 0, 0, 0));
 //            ChatColor chatColor = getTeamColor(teamName);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(chatColor + "此队伍无人"));
+            return false;
         }
 
     }
